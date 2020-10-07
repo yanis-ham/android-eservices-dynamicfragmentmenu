@@ -10,8 +10,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -25,6 +28,7 @@ public class MainActivity extends AppCompatActivity implements NavigationInterfa
     private SelectableNavigationView navigationView;
     private SparseArray<Fragment> fragmentArray;
     private Fragment currentFragment;
+    private int posMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +70,23 @@ public class MainActivity extends AppCompatActivity implements NavigationInterfa
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+
+                posMenu = menuItem.getOrder();
+
+                switch (posMenu){
+                    case 0 : if(fragmentArray.get(0) == null){
+                        currentFragment = SelectedFragment.newInstance();
+                    }break;
+                    case 1 : if(fragmentArray.get(1) == null){
+                        currentFragment = FavoritesFragment.newInstance();
+                    }break;
+                    case 2 : if(fragmentArray.get(2) == null){
+                        logoff();
+                    }break;
+                }
+                fragmentArray.put(posMenu,currentFragment);
+                replaceFragment(currentFragment);
+
                 //TODO react according to the selected item menu
                 //We need to display the right fragment according to the menu item selection.
                 //Any created fragment must be cached so it is only created once.
@@ -77,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements NavigationInterfa
                 //TODO when we select logoff, I want the Activity to be closed (and so the Application, as it has only one activity)
 
                 //check in the doc what this boolean means and use it the right way ...
-                return false;
+                return true;
             }
         });
     }
@@ -85,6 +106,13 @@ public class MainActivity extends AppCompatActivity implements NavigationInterfa
 
     private void replaceFragment(Fragment newFragment) {
         //TODO replace fragment inside R.id.fragment_container using a FragmentTransaction
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.replace(R.id.fragment_container,newFragment);
+        ft.commit();
+        drawerLayout.closeDrawer(GravityCompat.START);
+
+
     }
 
     private void logoff() {
